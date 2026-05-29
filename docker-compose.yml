@@ -1,0 +1,39 @@
+# Development stack: gimie-api running against the local gimie submodule.
+#
+# How it works:
+#   - The image (docker/gimie-api.dev.Dockerfile) ships gimie's dependency tree pre-installed.
+#   - ./modules/gimie is mounted at /gimie and installed *editable* (`pip install -e`),
+#     so edits to the local gimie source take effect without rebuilding.
+#   - ./modules/gimie-api/app is mounted at /app so API edits are live too.
+#   - uvicorn --reload watches both source trees and restarts on change.
+#
+# Usage:
+#   cp .env.example .env   # then add your GITHUB_TOKEN (and GITLAB_TOKEN if needed)
+#   docker compose up --build
+#   open http://localhost:45400/
+
+services:
+  gimie-api:
+    build:
+      context: .
+      dockerfile: docker/gimie-api.dev.Dockerfile
+    container_name: gimie-api-dev
+    ports:
+      - "45400:15400"
+    volumes:
+      # Live API source (FastAPI app)
+      - ./modules/gimie-api/app:/app
+      # Live local gimie source — installed editable at startup, overlaying the PyPI copy
+      - ./modules/gimie:/gimie
+    env_file:
+      - .env
+    # Overlay the mounted gimie as an editable package (deps already baked into the image),
+    # then serve with autoreload watching both the API and gimie source.
+    command: >
+      sh -c "pip install --no-deps -e /gimie &&
+             uvicorn app.main:app
+               --host 0.0.0.0
+               --port 15400
+               --reload
+               --reload-dir /app
+               --reload-dir /gimie/gimie"

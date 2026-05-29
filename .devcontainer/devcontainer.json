@@ -1,0 +1,59 @@
+{
+  "name": "gimie-api dev",
+
+  // Layer the dev-container override on top of the base development stack.
+  "dockerComposeFile": [
+    "../docker-compose.yml",
+    "docker-compose.yml"
+  ],
+
+  // The service VS Code attaches to and develops inside.
+  "service": "gimie-api",
+
+  // Where the repo is mounted (see the bind mount in docker-compose.yml).
+  "workspaceFolder": "/workspace",
+
+  // Keep the base file's command (pip install -e gimie + uvicorn --reload) so the
+  // API auto-starts and the container stays alive for VS Code to attach to.
+  "overrideCommand": false,
+
+  // gimie-api listens on 15400 inside the container; the base compose publishes 45400.
+  "forwardPorts": [45400],
+
+  // Toolchains for the other submodules, layered on top of the Python image:
+  //   - Node LTS (+ pnpm via corepack in postCreate) for oss-catalog (Astro/pnpm workspace)
+  //   - Go 1.24 for developers-italia-api and publiccode-crawler
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "lts"
+    },
+    "ghcr.io/devcontainers/features/go:1": {
+      "version": "1.24"
+    }
+  },
+
+  // Run as root (the dev image has no non-root user); needed so the safe.directory
+  // and corepack setup below apply to the user that VS Code terminals use.
+  "remoteUser": "root",
+
+  // Make every submodule editable under version control:
+  //   - safe.directory '*' stops git's "dubious ownership" error on the bind-mounted,
+  //     host-owned repo and all nested submodule gitdirs.
+  //   - corepack enable provides the pnpm shim for oss-catalog.
+  "postCreateCommand": "git config --global --add safe.directory '*' && corepack enable",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-azuretools.vscode-docker",
+        "golang.go",
+        "astro-build.astro-vscode"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/local/bin/python"
+      }
+    }
+  }
+}

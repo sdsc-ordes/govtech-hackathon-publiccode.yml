@@ -1,0 +1,15 @@
+# Dev Container override for the base ../docker-compose.yml.
+#
+# This layers on top of the base stack (which builds gimie-api with gimie mounted
+# editable). It adds a full-repo bind mount so VS Code can edit every submodule
+# (gimie, gimie-api, oss-catalog, the future frontend) from a single window.
+#
+# Relative paths resolve against the project directory, which Dev Containers sets
+# to the directory of the *first* compose file (the repo root), so "." = repo root.
+
+services:
+  gimie-api:
+    volumes:
+      # Whole repository, editable from inside the container at /workspace.
+      # (The base file's /app and /gimie mounts still apply on top of this.)
+      - .:/workspace:cached

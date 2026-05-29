@@ -1,0 +1,9 @@
+[submodule "modules/gimie-api"]
+	path = modules/gimie-api
+	url = https://github.com/sdsc-ordes/gimie-api.git
+[submodule "modules/gimie"]
+	path = modules/gimie
+	url = https://github.com/sdsc-ordes/gimie.git
+[submodule "modules/oss-catalog"]
+	path = modules/oss-catalog
+	url = https://github.com/sdsc-ordes/oss-catalog.git

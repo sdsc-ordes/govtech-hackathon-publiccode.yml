@@ -1,0 +1,6 @@
+{
+  // Show submodules as their own Source Control sections, even when clean
+  "git.detectSubmodules": true,
+  "git.detectSubmodulesLimit": 20,
+  "git.openRepositoryInParentFolders": "always"
+}
