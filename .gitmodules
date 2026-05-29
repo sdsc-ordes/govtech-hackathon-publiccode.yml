@@ -7,3 +7,6 @@
 [submodule "modules/oss-catalog"]
 	path = modules/oss-catalog
 	url = https://github.com/sdsc-ordes/oss-catalog.git
+[submodule "modules/publiccode-editor"]
+	path = modules/publiccode-editor
+	url = https://github.com/sdsc-ordes/publiccode-editor.git
