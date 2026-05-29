@@ -29,11 +29,29 @@ services:
       - .env
     # Overlay the mounted gimie as an editable package (deps already baked into the image),
     # then serve with autoreload watching both the API and gimie source.
+    # NOTE: keep every line at the same indentation. With a folded scalar (>),
+    # extra-indented lines keep their newlines, which would split the uvicorn
+    # args into separate (failing) shell commands and leave uvicorn on its
+    # defaults (127.0.0.1:8000) instead of 0.0.0.0:15400.
     command: >
       sh -c "pip install --no-deps -e /gimie &&
-             uvicorn app.main:app
-               --host 0.0.0.0
-               --port 15400
-               --reload
-               --reload-dir /app
-               --reload-dir /gimie/gimie"
+      uvicorn app.main:app
+      --host 0.0.0.0
+      --port 15400
+      --reload
+      --reload-dir /app
+      --reload-dir /gimie/gimie"
+
+  # Publiccode editor: static build (wasm compiled with Go inside the image),
+  # served by nginx. The prefill button calls gimie-api at the build-time
+  # default http://localhost:45400, reached from the user's browser via the
+  # host-mapped port; gimie-api CORS already allows http://localhost:3000.
+  publiccode-editor:
+    build:
+      context: ./modules/publiccode-editor
+      dockerfile: Dockerfile
+    container_name: publiccode-editor
+    ports:
+      - "3000:80"
+    depends_on:
+      - gimie-api
